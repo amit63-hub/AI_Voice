@@ -1,0 +1,84 @@
+services:
+  # Main API Server
+  - type: web
+    name: ai-chat-api
+    runtime: node
+    plan: starter
+    env: node
+    buildCommand: "npm install --production"
+    startCommand: "npm start"
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false # Will be set manually in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false # Will be set manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REDIS_URL
+        sync: false # Optional - for Redis if needed
+    autoDeploy: true
+    
+  # Voice Server (WebSocket)
+  - type: web
+    name: ai-chat-voice
+    runtime: node
+    plan: starter
+    env: node
+    buildCommand: "npm install --production"
+    startCommand: "node voice-system/voice-server.js"
+    healthCheckPath: "/voice/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4001
+      - key: OPENAI_API_KEY
+        sync: false # Will be set manually in Render dashboard
+    autoDeploy: true
+
+databases:
+  # PostgreSQL Database
+  - name: ai-chat-db
+    plan: starter
+    databaseName: aichat
+    user: aichat_user
+    
+  # Redis (Optional - for caching)
+  - name: ai-chat-redis
+    plan: starter
+    ipAllowList: [] # Only accessible from within Render
+
+# Build configuration
+build:
+  dockerfilePath: ./Dockerfile
+  dockerContext: .
+
+# Environment groups (for different environments)
+environments:
+  production:
+    services:
+      - type: web
+        name: ai-chat-api
+        plan: starter
+      - type: web
+        name: ai-chat-voice
+        plan: starter
+    databases:
+      - name: ai-chat-db
+        plan: starter
+      - name: ai-chat-redis
+        plan: free
+
+  staging:
+    services:
+      - type: web
+        name: ai-chat-api-staging
+        plan: starter
+    databases:
+      - name: ai-chat-db-staging
+        plan: free

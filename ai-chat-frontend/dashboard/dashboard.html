@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Dashboard</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>AI Chat SaaS</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active">Dashboard</a>
+                <a href="#conversations" class="nav-link">Conversations</a>
+                <a href="#billing" class="nav-link">Billing</a>
+                <a href="#settings" class="nav-link">Settings</a>
+                <div class="nav-user">
+                    <span id="user-name">Loading...</span>
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Overview -->
+        <section id="dashboard" class="dashboard-section active">
+            <div class="section-header">
+                <h2>Dashboard Overview</h2>
+                <div class="user-plan-badge" id="user-plan">Free Plan</div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="messages-used">0</h3>
+                        <p>Messages Used</p>
+                        <div class="stat-progress">
+                            <div class="progress-bar">
+                                <div id="messages-progress" class="progress-fill"></div>
+                            </div>
+                            <span id="messages-limit">/ 100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="conversations-count">0</h3>
+                        <p>Conversations</p>
+                        <span class="stat-subtitle">Total chats</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="voice-minutes">0</h3>
+                        <p>Voice Minutes</p>
+                        <span class="stat-subtitle">This month</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="plan-cost">$0</h3>
+                        <p>Current Plan</p>
+                        <span class="stat-subtitle">Monthly cost</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <h3>Recent Activity</h3>
+                <div id="recent-activity" class="activity-list">
+                    <!-- Activity items will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Conversations Section -->
+        <section id="conversations" class="dashboard-section">
+            <div class="section-header">
+                <h2>Conversation History</h2>
+                <button id="new-chat-btn" class="btn btn-primary">New Chat</button>
+            </div>
+
+            <div class="conversations-grid" id="conversations-grid">
+                <!-- Conversations will be populated here -->
+            </div>
+        </section>
+
+        <!-- Billing Section -->
+        <section id="billing" class="dashboard-section">
+            <div class="section-header">
+                <h2>Billing & Subscription</h2>
+            </div>
+
+            <div class="billing-content">
+                <!-- Current Plan -->
+                <div class="current-plan-card">
+                    <h3>Current Plan</h3>
+                    <div id="current-plan-details" class="plan-details">
+                        <!-- Plan details will be populated here -->
+                    </div>
+                    <div class="plan-actions">
+                        <button id="upgrade-btn" class="btn btn-primary">Upgrade Plan</button>
+                        <button id="manage-btn" class="btn btn-secondary">Manage Subscription</button>
+                    </div>
+                </div>
+
+                <!-- Usage Chart -->
+                <div class="usage-chart-card">
+                    <h3>Usage Overview</h3>
+                    <canvas id="usage-chart"></canvas>
+                </div>
+
+                <!-- Billing History -->
+                <div class="billing-history-card">
+                    <h3>Billing History</h3>
+                    <div id="billing-history" class="history-list">
+                        <!-- Billing history will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="dashboard-section">
+            <div class="section-header">
+                <h2>Settings</h2>
+            </div>
+
+            <div class="settings-content">
+                <!-- Profile Settings -->
+                <div class="settings-card">
+                    <h3>Profile Settings</h3>
+                    <form id="profile-form" class="settings-form">
+                        <div class="form-group">
+                            <label for="profile-name">Name</label>
+                            <input type="text" id="profile-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-email">Email</label>
+                            <input type="email" id="profile-email" name="email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                    </form>
+                </div>
+
+                <!-- AI Preferences -->
+                <div class="settings-card">
+                    <h3>AI Preferences</h3>
+                    <form id="preferences-form" class="settings-form">
+                        <div class="form-group">
+                            <label for="ai-personality">AI Personality</label>
+                            <select id="ai-personality" name="personality">
+                                <option value="helpful">Helpful Assistant</option>
+                                <option value="professional">Professional</option>
+                                <option value="casual">Casual Friend</option>
+                                <option value="creative">Creative Partner</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ai-language">Language</label>
+                            <select id="ai-language" name="language">
+                                <option value="en">English</option>
+                                <option value="hi">Hindi</option>
+                                <option value="bilingual">Bilingual</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="response-style">Response Style</label>
+                            <select id="response-style" name="responseStyle">
+                                <option value="brief">Brief</option>
+                                <option value="detailed">Detailed</option>
+                                <option value="technical">Technical</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Preferences</button>
+                    </form>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-card">
+                    <h3>Security</h3>
+                    <div class="security-actions">
+                        <button id="change-password-btn" class="btn btn-secondary">Change Password</button>
+                        <button id="enable-2fa-btn" class="btn btn-secondary">Enable 2FA</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="upgrade-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Choose Your Plan</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="plans-grid" class="plans-grid">
+                    <!-- Plans will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="change-password-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="change-password-form" class="settings-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" name="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" name="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
