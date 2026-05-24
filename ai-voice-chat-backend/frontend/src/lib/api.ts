@@ -56,6 +56,54 @@ export const api = {
   // Dashboard
   getDashboardStats: (token: string) => apiFetch('/dashboard/stats', { token }),
 
+  // Multi-Model AI
+  getModels: () => apiFetch('/ai/models'),
+  
+  aiChat: (token: string, message: string, model: string, stream: boolean = false) =>
+    apiFetch('/ai/chat', { method: 'POST', body: JSON.stringify({ message, model, stream }), token }),
+
+  // RAG System
+  addDocument: (token: string, content: string, metadata: any) =>
+    apiFetch('/rag/document', { method: 'POST', body: JSON.stringify({ content, metadata }), token }),
+
+  searchKnowledge: (token: string, query: string, topK: number = 5) =>
+    apiFetch('/rag/search', { method: 'POST', body: JSON.stringify({ query, topK }), token }),
+
+  ragChat: (token: string, query: string, model: string = 'gpt-4o-mini') =>
+    apiFetch('/rag/chat', { method: 'POST', body: JSON.stringify({ query, model }), token }),
+
+  deleteKnowledge: (token: string) =>
+    apiFetch('/rag/knowledge', { method: 'DELETE', token }),
+
+  getKnowledgeStats: (token: string) =>
+    apiFetch('/rag/stats', { token }),
+
+  // Analytics
+  getUserAnalytics: (token: string, period: string = '30d') =>
+    apiFetch(`/analytics/user?period=${period}`, { token }),
+
+  getPlatformAnalytics: (token: string, period: string = '30d') =>
+    apiFetch(`/analytics/platform?period=${period}`, { token }),
+
+  // Enterprise
+  generateApiKey: (token: string, name: string = 'API Key') =>
+    apiFetch('/enterprise/api-key', { method: 'POST', body: JSON.stringify({ name }), token }),
+
+  getApiKeys: (token: string) =>
+    apiFetch('/enterprise/api-keys', { token }),
+
+  revokeApiKey: (token: string, keyId: number) =>
+    apiFetch(`/enterprise/api-key/${keyId}`, { method: 'DELETE', token }),
+
+  createWebhook: (token: string, url: string, events: string[]) =>
+    apiFetch('/enterprise/webhook', { method: 'POST', body: JSON.stringify({ url, events }), token }),
+
+  getAuditLogs: (token: string, limit: number = 100) =>
+    apiFetch(`/enterprise/audit-logs?limit=${limit}`, { token }),
+
+  enableEnterprise: (token: string) =>
+    apiFetch('/enterprise/enable', { method: 'POST', token }),
+
   // Health
   health: () => apiFetch('/health'),
 };

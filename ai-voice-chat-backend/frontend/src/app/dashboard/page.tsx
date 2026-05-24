@@ -72,6 +72,9 @@ export default function DashboardPage() {
       <header className="flex items-center justify-between px-6 py-3 border-b border-gray-800 bg-gray-900/80 backdrop-blur">
         <h1 className="text-lg font-semibold text-white">Dashboard</h1>
         <div className="flex items-center gap-4">
+          <Link href="/analytics" className="text-sm text-gray-400 hover:text-white transition-colors">Analytics</Link>
+          <Link href="/knowledge" className="text-sm text-gray-400 hover:text-white transition-colors">Knowledge</Link>
+          <Link href="/enterprise" className="text-sm text-gray-400 hover:text-white transition-colors">Enterprise</Link>
           <Link href="/chat" className="text-sm text-gray-400 hover:text-white transition-colors">Chat</Link>
           <button onClick={logout} className="text-sm text-gray-400 hover:text-red-400 transition-colors">Logout</button>
         </div>

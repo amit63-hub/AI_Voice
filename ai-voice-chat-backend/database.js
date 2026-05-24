@@ -125,6 +125,81 @@ class Database {
       )
     `);
 
+    // Enterprise tables
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId TEXT,
+        action TEXT,
+        resource TEXT,
+        details TEXT,
+        timestamp TEXT,
+        ipAddress TEXT,
+        userAgent TEXT
+      )
+    `);
+
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS api_keys (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId TEXT,
+        name TEXT,
+        keyHash TEXT,
+        createdAt TEXT,
+        lastUsed TEXT,
+        status TEXT
+      )
+    `);
+
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS webhooks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        webhookId TEXT,
+        userId TEXT,
+        url TEXT,
+        events TEXT,
+        secret TEXT,
+        status TEXT,
+        createdAt TEXT
+      )
+    `);
+
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS performance_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        endpoint TEXT,
+        response_time REAL,
+        status TEXT,
+        timestamp TEXT
+      )
+    `);
+
+    // Update users table to include new fields
+    try {
+      this.db.run(`ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'`);
+    } catch (e) { /* Column might already exist */ }
+    
+    try {
+      this.db.run(`ALTER TABLE users ADD COLUMN authProvider TEXT`);
+    } catch (e) { /* Column might already exist */ }
+    
+    try {
+      this.db.run(`ALTER TABLE users ADD COLUMN authProviderId TEXT`);
+    } catch (e) { /* Column might already exist */ }
+    
+    try {
+      this.db.run(`ALTER TABLE users ADD COLUMN preferences TEXT`);
+    } catch (e) { /* Column might already exist */ }
+    
+    try {
+      this.db.run(`ALTER TABLE users ADD COLUMN last_login TEXT`);
+    } catch (e) { /* Column might already exist */ }
+
+    // Update conversations table to include model field
+    try {
+      this.db.run(`ALTER TABLE conversations ADD COLUMN model TEXT`);
+    } catch (e) { /* Column might already exist */ }
+
     this.save();
   }
 

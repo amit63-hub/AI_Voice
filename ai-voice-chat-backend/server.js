@@ -7,6 +7,10 @@ const { OpenAI } = require('openai');
 const { execSync } = require('child_process');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { MultiModelAI } = require('./multi-model-ai');
+const { RAGSystem } = require('./rag-system');
+const { AdvancedAnalytics } = require('./advanced-analytics');
+const { EnterpriseAuth } = require('./enterprise-auth');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -65,6 +69,15 @@ const db = new Database(process.env.DATABASE_URL);
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// Initialize advanced systems
+const multiModelAI = new MultiModelAI();
+const ragSystem = new RAGSystem();
+const analytics = new AdvancedAnalytics(db);
+const enterpriseAuth = new EnterpriseAuth(db);
+
+// Initialize enterprise tables
+enterpriseAuth.initEnterpriseTables().catch(console.error);
 
 // Middleware
 app.use(helmet());
@@ -811,6 +824,258 @@ app.get('/leads', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Leads error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ==========================================
+// MULTI-MODEL AI ENDPOINTS
+// ==========================================
+
+// GET /ai/models — list available AI models
+app.get('/ai/models', (req, res) => {
+  try {
+    const models = multiModelAI.getAvailableModels();
+    res.json({ models, count: models.length });
+  } catch (error) {
+    console.error('Models error:', error);
+    res.status(500).json({ error: 'Failed to fetch models' });
+  }
+});
+
+// POST /ai/chat — chat with specific AI model
+app.post('/ai/chat', authMiddleware, async (req, res) => {
+  try {
+    const { message, model = 'gpt-4o-mini', stream = false } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'Message required' });
+    }
+
+    const messages = [{ role: 'user', content: message }];
+    const systemPrompt = AI_SYSTEM_PROMPT;
+
+    if (stream) {
+      // Streaming response
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      for await (const chunk of multiModelAI.streamGenerate(model, messages, systemPrompt)) {
+        if (chunk.type === 'content') {
+          res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+        } else if (chunk.type === 'done') {
+          res.write(`data: ${JSON.stringify({ type: 'done', finishReason: chunk.finishReason })}\n\n`);
+        }
+      }
+      res.end();
+    } else {
+      // Non-streaming response
+      const response = await multiModelAI.generate(model, messages, systemPrompt);
+      
+      // Save message
+      await db.saveMessage(req.userId, 'user', message, model);
+      await db.saveMessage(req.userId, 'assistant', response.content, model);
+      
+      res.json({
+        content: response.content,
+        model: response.model,
+        provider: response.provider,
+        usage: response.usage,
+        finishReason: response.finishReason
+      });
+    }
+  } catch (error) {
+    console.error('AI chat error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==========================================
+// RAG SYSTEM ENDPOINTS
+// ==========================================
+
+// POST /rag/document — add document to knowledge base
+app.post('/rag/document', authMiddleware, async (req, res) => {
+  try {
+    const { content, metadata = {} } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ error: 'Content required' });
+    }
+
+    const result = await ragSystem.addDocument(req.userId, content, metadata);
+    res.json(result);
+  } catch (error) {
+    console.error('Add document error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /rag/search — search knowledge base
+app.post('/rag/search', authMiddleware, async (req, res) => {
+  try {
+    const { query, topK = 5 } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'Query required' });
+    }
+
+    const results = await ragSystem.search(req.userId, query, topK);
+    res.json({ results, count: results.length });
+  } catch (error) {
+    console.error('RAG search error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /rag/chat — RAG-enhanced chat
+app.post('/rag/chat', authMiddleware, async (req, res) => {
+  try {
+    const { query, model = 'gpt-4o-mini' } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'Query required' });
+    }
+
+    const response = await ragSystem.ragChat(req.userId, query, AI_SYSTEM_PROMPT, model);
+    
+    // Save message
+    await db.saveMessage(req.userId, 'user', query, model);
+    await db.saveMessage(req.userId, 'assistant', response.content, model);
+    
+    res.json(response);
+  } catch (error) {
+    console.error('RAG chat error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /rag/knowledge — delete user's knowledge base
+app.delete('/rag/knowledge', authMiddleware, async (req, res) => {
+  try {
+    const result = await ragSystem.deleteUserKnowledge(req.userId);
+    res.json(result);
+  } catch (error) {
+    console.error('Delete knowledge error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /rag/stats — get knowledge base stats
+app.get('/rag/stats', authMiddleware, async (req, res) => {
+  try {
+    const stats = await ragSystem.getKnowledgeStats(req.userId);
+    res.json(stats);
+  } catch (error) {
+    console.error('RAG stats error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==========================================
+// ADVANCED ANALYTICS ENDPOINTS
+// ==========================================
+
+// GET /analytics/user — get user analytics
+app.get('/analytics/user', authMiddleware, async (req, res) => {
+  try {
+    const { period = '30d' } = req.query;
+    const userAnalytics = await analytics.getUserAnalytics(req.userId, period);
+    res.json(userAnalytics);
+  } catch (error) {
+    console.error('User analytics error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /analytics/platform — get platform analytics (admin only)
+app.get('/analytics/platform', authMiddleware, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await db.getUser(req.userId);
+    if (user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { period = '30d' } = req.query;
+    const platformAnalytics = await analytics.getPlatformAnalytics(period);
+    res.json(platformAnalytics);
+  } catch (error) {
+    console.error('Platform analytics error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==========================================
+// ENTERPRISE AUTH ENDPOINTS
+// ==========================================
+
+// POST /enterprise/api-key — generate API key
+app.post('/enterprise/api-key', authMiddleware, async (req, res) => {
+  try {
+    const { name = 'API Key' } = req.body;
+    const apiKey = await enterpriseAuth.generateApiKey(req.userId, name);
+    res.json(apiKey);
+  } catch (error) {
+    console.error('Generate API key error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /enterprise/api-keys — list API keys
+app.get('/enterprise/api-keys', authMiddleware, async (req, res) => {
+  try {
+    const keys = await enterpriseAuth.listApiKeys(req.userId);
+    res.json({ keys, count: keys.length });
+  } catch (error) {
+    console.error('List API keys error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /enterprise/api-key/:id — revoke API key
+app.delete('/enterprise/api-key/:id', authMiddleware, async (req, res) => {
+  try {
+    await enterpriseAuth.revokeApiKey(req.userId, req.params.id);
+    res.json({ success: true, message: 'API key revoked' });
+  } catch (error) {
+    console.error('Revoke API key error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /enterprise/webhook — create webhook
+app.post('/enterprise/webhook', authMiddleware, async (req, res) => {
+  try {
+    const { url, events = ['message.sent'] } = req.body;
+    const webhook = await enterpriseAuth.createWebhook(req.userId, url, events);
+    res.json(webhook);
+  } catch (error) {
+    console.error('Create webhook error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /enterprise/audit-logs — get audit logs
+app.get('/enterprise/audit-logs', authMiddleware, async (req, res) => {
+  try {
+    const { limit = 100 } = req.query;
+    const logs = await enterpriseAuth.getAuditLogs(req.userId, parseInt(limit));
+    res.json({ logs, count: logs.length });
+  } catch (error) {
+    console.error('Get audit logs error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /enterprise/enable — enable enterprise features
+app.post('/enterprise/enable', authMiddleware, async (req, res) => {
+  try {
+    const features = await enterpriseAuth.enableEnterpriseFeatures(req.userId);
+    res.json({ success: true, features });
+  } catch (error) {
+    console.error('Enable enterprise error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
