@@ -14,9 +14,11 @@ A reliable, scalable backend system for AI-powered voice and chat interactions.
 ## API Endpoints
 
 ### POST /chat
+
 Process chat messages with AI integration.
 
 **Request:**
+
 ```json
 {
   "userId": "user123",
@@ -25,6 +27,7 @@ Process chat messages with AI integration.
 ```
 
 **Response:**
+
 ```json
 {
   "response": "AI response message",
@@ -33,9 +36,11 @@ Process chat messages with AI integration.
 ```
 
 ### POST /call
+
 Trigger outbound calls.
 
 **Request:**
+
 ```json
 {
   "phoneNumber": "+1234567890",
@@ -44,12 +49,15 @@ Trigger outbound calls.
 ```
 
 ### POST /voice-webhook
+
 Handle voice input/output from voice services.
 
 ### POST /lead
+
 Save lead data.
 
 **Request:**
+
 ```json
 {
   "name": "John Doe",
@@ -61,18 +69,22 @@ Save lead data.
 
 ## Setup
 
-1. **Install dependencies:**
+- **Install dependencies:**
+
 ```bash
 npm install
 ```
 
-2. **Configure environment:**
+- **Configure environment:**
+
 Copy `.env` file and update:
+
 - `OPENAI_API_KEY`: Your OpenAI API key
 - `JWT_SECRET`: Secret for JWT tokens
 - `DATABASE_URL`: SQLite database path
 
-3. **Start server:**
+- **Start server:**
+
 ```bash
 npm run dev
 # or
@@ -82,21 +94,25 @@ npm start
 ## Database Schema
 
 ### Users
+
 - `id`: Unique user identifier
 - `name`, `email`, `phone`: User contact info
 
 ### Conversations
+
 - `user_id`: Link to user
 - `sender`: 'user' or 'assistant'
 - `message`: Message content
 - `timestamp`: Message time
 
 ### Leads
+
 - `name`, `contact`: Lead information
 - `intent`: Lead purpose
 - `status`: Lead status (new, contacted, converted)
 
 ### Calls
+
 - `user_id`: Link to user
 - `phone_number`: Call destination
 - `status`: Call status
@@ -112,6 +128,7 @@ npm start
 ## Voice Integration
 
 The system supports voice services through webhooks:
+
 - Speech-to-text processing
 - AI response generation
 - Text-to-speech output
@@ -120,6 +137,7 @@ The system supports voice services through webhooks:
 ## AI Integration
 
 Uses OpenAI GPT-3.5-turbo with:
+
 - Custom system prompt for customer support
 - Conversation history context
 - Tool calling capabilities
