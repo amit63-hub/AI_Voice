@@ -104,6 +104,31 @@ export const api = {
   enableEnterprise: (token: string) =>
     apiFetch('/enterprise/enable', { method: 'POST', token }),
 
+  // AI Calling Assistant
+  createCall: (token: string, phoneNumber: string, script: string, priority: string = 'normal') =>
+    apiFetch('/calling-assistant/create', { method: 'POST', body: JSON.stringify({ phoneNumber, script, priority }), token }),
+
+  getCall: (token: string, callId: string) =>
+    apiFetch(`/calling-assistant/call/${callId}`, { token }),
+
+  getCalls: (token: string) =>
+    apiFetch('/calling-assistant/calls', { token }),
+
+  getActiveCalls: (token: string) =>
+    apiFetch('/calling-assistant/active', { token }),
+
+  getQueueStatus: (token: string) =>
+    apiFetch('/calling-assistant/queue', { token }),
+
+  cancelCall: (token: string, callId: string) =>
+    apiFetch(`/calling-assistant/cancel/${callId}`, { method: 'POST', token }),
+
+  generateScript: (token: string, objective: string, tone: string = 'professional', language: string = 'english') =>
+    apiFetch('/calling-assistant/generate-script', { method: 'POST', body: JSON.stringify({ objective, tone, language }), token }),
+
+  getCallAnalytics: (token: string, period: string = '30d') =>
+    apiFetch(`/calling-assistant/analytics?period=${period}`, { token }),
+
   // Health
   health: () => apiFetch('/health'),
 };

@@ -75,6 +75,7 @@ export default function DashboardPage() {
           <Link href="/analytics" className="text-sm text-gray-400 hover:text-white transition-colors">Analytics</Link>
           <Link href="/knowledge" className="text-sm text-gray-400 hover:text-white transition-colors">Knowledge</Link>
           <Link href="/enterprise" className="text-sm text-gray-400 hover:text-white transition-colors">Enterprise</Link>
+          <Link href="/calling" className="text-sm text-gray-400 hover:text-white transition-colors">Calling</Link>
           <Link href="/chat" className="text-sm text-gray-400 hover:text-white transition-colors">Chat</Link>
           <button onClick={logout} className="text-sm text-gray-400 hover:text-red-400 transition-colors">Logout</button>
         </div>

@@ -11,6 +11,7 @@ const { MultiModelAI } = require('./multi-model-ai');
 const { RAGSystem } = require('./rag-system');
 const { AdvancedAnalytics } = require('./advanced-analytics');
 const { EnterpriseAuth } = require('./enterprise-auth');
+const { AICallingAssistant } = require('./ai-calling-assistant');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -75,6 +76,7 @@ const multiModelAI = new MultiModelAI();
 const ragSystem = new RAGSystem();
 const analytics = new AdvancedAnalytics(db);
 const enterpriseAuth = new EnterpriseAuth(db);
+const aiCallingAssistant = new AICallingAssistant(db, openai);
 
 // Initialize enterprise tables
 enterpriseAuth.initEnterpriseTables().catch(console.error);
@@ -1075,6 +1077,99 @@ app.post('/enterprise/enable', authMiddleware, async (req, res) => {
     res.json({ success: true, features });
   } catch (error) {
     console.error('Enable enterprise error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==================== AI Calling Assistant Endpoints ====================
+
+// POST /calling-assistant/create — create outbound call
+app.post('/calling-assistant/create', authMiddleware, async (req, res) => {
+  try {
+    const { phoneNumber, script, priority = 'normal' } = req.body;
+    const call = await aiCallingAssistant.createCall(req.userId, phoneNumber, script, priority);
+    res.json({ success: true, call });
+  } catch (error) {
+    console.error('Create call error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /calling-assistant/call/:callId — get call details
+app.get('/calling-assistant/call/:callId', authMiddleware, async (req, res) => {
+  try {
+    const call = await aiCallingAssistant.getCall(req.params.callId);
+    res.json({ call });
+  } catch (error) {
+    console.error('Get call error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /calling-assistant/calls — get user's calls
+app.get('/calling-assistant/calls', authMiddleware, async (req, res) => {
+  try {
+    const calls = await aiCallingAssistant.getUserCalls(req.userId);
+    res.json({ calls, count: calls.length });
+  } catch (error) {
+    console.error('Get calls error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /calling-assistant/active — get active calls
+app.get('/calling-assistant/active', authMiddleware, async (req, res) => {
+  try {
+    const activeCalls = aiCallingAssistant.getActiveCalls();
+    res.json({ activeCalls, count: activeCalls.length });
+  } catch (error) {
+    console.error('Get active calls error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /calling-assistant/queue — get queue status
+app.get('/calling-assistant/queue', authMiddleware, async (req, res) => {
+  try {
+    const queueStatus = aiCallingAssistant.getQueueStatus();
+    res.json(queueStatus);
+  } catch (error) {
+    console.error('Get queue status error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /calling-assistant/cancel/:callId — cancel call
+app.post('/calling-assistant/cancel/:callId', authMiddleware, async (req, res) => {
+  try {
+    const call = await aiCallingAssistant.cancelCall(req.params.callId);
+    res.json({ success: true, call });
+  } catch (error) {
+    console.error('Cancel call error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /calling-assistant/generate-script — generate AI script
+app.post('/calling-assistant/generate-script', authMiddleware, async (req, res) => {
+  try {
+    const { objective, tone = 'professional', language = 'english' } = req.body;
+    const script = await aiCallingAssistant.generateScript(objective, tone, language);
+    res.json({ script });
+  } catch (error) {
+    console.error('Generate script error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /calling-assistant/analytics — get call analytics
+app.get('/calling-assistant/analytics', authMiddleware, async (req, res) => {
+  try {
+    const { period = '30d' } = req.query;
+    const analytics = await aiCallingAssistant.getCallAnalytics(req.userId, period);
+    res.json(analytics);
+  } catch (error) {
+    console.error('Get call analytics error:', error);
     res.status(500).json({ error: error.message });
   }
 });

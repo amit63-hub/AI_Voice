@@ -174,6 +174,26 @@ class Database {
       )
     `);
 
+    // AI Calling Assistant tables
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS calls (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        phoneNumber TEXT NOT NULL,
+        script TEXT,
+        status TEXT DEFAULT 'queued',
+        priority TEXT DEFAULT 'normal',
+        createdAt TEXT,
+        startedAt TEXT,
+        endedAt TEXT,
+        duration INTEGER DEFAULT 0,
+        transcript TEXT,
+        aiResponses TEXT,
+        recordingUrl TEXT,
+        FOREIGN KEY (userId) REFERENCES users (id)
+      )
+    `);
+
     // Update users table to include new fields
     try {
       this.db.run(`ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'`);
@@ -475,6 +495,56 @@ class Database {
     }
     stmt.free();
     return row;
+  }
+
+  // Call operations for AI Calling Assistant
+  async createCall(call) {
+    await this.ready;
+    this.db.run(
+      'INSERT INTO calls (id, userId, phoneNumber, script, status, priority, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [call.id, call.userId, call.phoneNumber, call.script, call.status, call.priority, call.createdAt]
+    );
+    this.save();
+    return call;
+  }
+
+  async getCall(callId) {
+    await this.ready;
+    const stmt = this.db.prepare('SELECT * FROM calls WHERE id = ?');
+    stmt.bind([callId]);
+    let row = null;
+    if (stmt.step()) {
+      const values = stmt.get();
+      const columns = stmt.getColumnNames();
+      row = {};
+      columns.forEach((col, i) => { row[col] = values[i]; });
+    }
+    stmt.free();
+    return row;
+  }
+
+  async getCallsByUserId(userId) {
+    await this.ready;
+    const stmt = this.db.prepare('SELECT * FROM calls WHERE userId = ? ORDER BY createdAt DESC');
+    stmt.bind([userId]);
+    const rows = [];
+    while (stmt.step()) {
+      const values = stmt.get();
+      const columns = stmt.getColumnNames();
+      const row = {};
+      columns.forEach((col, i) => { row[col] = values[i]; });
+      rows.push(row);
+    }
+    stmt.free();
+    return rows;
+  }
+
+  async updateCall(callId, updates) {
+    await this.ready;
+    const setClause = Object.keys(updates).map(key => `${key} = ?`).join(', ');
+    const values = Object.values(updates);
+    this.db.run(`UPDATE calls SET ${setClause} WHERE id = ?`, [...values, callId]);
+    this.save();
   }
 
   async deleteSession(sessionId) {
