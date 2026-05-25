@@ -86,10 +86,8 @@ jobs:
         npm ci
         npm run build
     
-    - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v20
+    - name: Upload frontend artifacts
+      uses: actions/upload-artifact@v3
       with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./ai-voice-chat-backend/frontend
+        name: frontend-build
+        path: ai-voice-chat-backend/frontend/.next

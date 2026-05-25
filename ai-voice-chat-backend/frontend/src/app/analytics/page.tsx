@@ -113,7 +113,7 @@ export default function AnalyticsPage() {
                     <span className="text-gray-300">{model.model}</span>
                     <div className="flex items-center gap-4">
                       <div className="w-48 h-2 bg-gray-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-600" style={{ width: `${model.percentage}%` }} />
+                        <div className="h-full bg-blue-600" data-width={model.percentage} />
                       </div>
                       <span className="text-sm text-gray-400 w-20 text-right">{model.count} ({model.percentage}%)</span>
                     </div>

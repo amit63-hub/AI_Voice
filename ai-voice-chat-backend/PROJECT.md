@@ -3,6 +3,7 @@
 ## 🚀 Production-Ready AI SaaS Platform
 
 Enterprise-grade AI Voice & Chat Assistant Platform with:
+
 - 💬 Real-time AI Chat (OpenAI GPT-4o)
 - 🎤 Voice Input/Output (Web Speech API)
 - 👥 User Authentication (JWT)
@@ -15,7 +16,7 @@ Enterprise-grade AI Voice & Chat Assistant Platform with:
 
 ## 📁 Project Structure
 
-```
+```text
 ai-voice-chat-backend/
 ├── server.js                 # Express backend with all APIs
 ├── database.js               # SQLite database with sql.js
@@ -42,6 +43,7 @@ ai-voice-chat-backend/
 ## 🔧 Setup Instructions
 
 ### Backend Setup
+
 ```bash
 cd ai-voice-chat-backend
 npm install
@@ -51,6 +53,7 @@ npm start
 ```
 
 ### Frontend Setup
+
 ```bash
 cd frontend
 npm install
@@ -62,18 +65,22 @@ npm run dev
 ## 🌐 API Endpoints
 
 ### Auth
+
 - `POST /auth/register` - Register new user
 - `POST /auth/login` - Login user
 - `GET /auth/me` - Get current user info
 
 ### Chat
+
 - `POST /chat` - Send message to AI
 
 ### Subscriptions
+
 - `GET /plans` - Get available plans
 - `POST /subscribe` - Upgrade plan
 
 ### Analytics
+
 - `GET /usage` - Get API usage stats
 - `GET /dashboard/stats` - Dashboard data
 - `GET /leads` - Get leads list
@@ -82,17 +89,18 @@ npm run dev
 
 ## 💰 Subscription Plans
 
-| Plan | Price | Messages/Day | Voice | Model |
-|------|-------|--------------|--------|-------|
-| Free | ₹0 | 20 | ❌ | gpt-4o-mini |
-| Pro | ₹499 | 500 | ✅ | gpt-4o-mini |
-| Premium | ₹1499 | Unlimited | ✅ | gpt-4o |
+| Plan   | Price   | Messages/Day | Voice | Model        |
+|--------|---------|--------------|-------|--------------|
+| Free   | ₹0      | 20           | ❌    | gpt-4o-mini  |
+| Pro    | ₹499    | 500          | ✅    | gpt-4o-mini  |
+| Premium| ₹1499   | Unlimited    | ✅    | gpt-4o       |
 
 ---
 
 ## 🚀 Deployment
 
 ### Backend (Render/Railway)
+
 1. Connect GitHub repo
 2. Set environment variables:
    - `OPENAI_API_KEY`
@@ -101,6 +109,7 @@ npm run dev
 3. Deploy
 
 ### Frontend (Vercel)
+
 1. Connect GitHub repo
 2. Set environment variable:
    - `NEXT_PUBLIC_API_URL=https://your-backend-url.com`
@@ -127,16 +136,16 @@ curl -X POST http://localhost:4000/auth/register \
 
 ## 📱 Features
 
-✅ **Authentication** - JWT-based auth with secure tokens  
-✅ **Rate Limiting** - Per-plan message limits  
-✅ **Voice Support** - Speech-to-text & text-to-speech  
-✅ **Multi-language** - English & Hinglish support  
-✅ **Real-time Chat** - Instant AI responses  
-✅ **Dashboard** - Usage analytics & insights  
-✅ **Lead Capture** - Business lead generation  
-✅ **Responsive UI** - Mobile-first design  
-✅ **Dark Theme** - Modern dark interface  
-✅ **Error Handling** - Graceful error management  
+- ✅ **Authentication** - JWT-based auth with secure tokens
+- ✅ **Rate Limiting** - Per-plan message limits
+- ✅ **Voice Support** - Speech-to-text & text-to-speech
+- ✅ **Multi-language** - English & Hinglish support
+- ✅ **Real-time Chat** - Instant AI responses
+- ✅ **Dashboard** - Usage analytics & insights
+- ✅ **Lead Capture** - Business lead generation
+- ✅ **Responsive UI** - Mobile-first design
+- ✅ **Dark Theme** - Modern dark interface
+- ✅ **Error Handling** - Graceful error management  
 
 ---
 
@@ -154,6 +163,7 @@ curl -X POST http://localhost:4000/auth/register \
 ## 📊 Tech Stack
 
 **Backend:**
+
 - Node.js + Express
 - SQLite (sql.js)
 - OpenAI API
@@ -161,6 +171,7 @@ curl -X POST http://localhost:4000/auth/register \
 - Helmet security
 
 **Frontend:**
+
 - Next.js 16
 - TypeScript
 - Tailwind CSS
