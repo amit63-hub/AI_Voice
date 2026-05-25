@@ -3,6 +3,7 @@
 ## **DIAGNOSIS RESULTS**
 
 ### **Root Cause Identified:**
+
 - **Backend is running** (health check successful)
 - **API endpoint is working** (chat endpoint responds)
 - **Issue**: PowerShell command syntax and JSON formatting problems
@@ -12,6 +13,7 @@
 ## **1. WORKING POWERSHELL COMMANDS**
 
 ### **Method 1: Invoke-RestMethod (Recommended)**
+
 ```powershell
 # Create JSON body properly
 $body = @{
@@ -25,11 +27,13 @@ $response
 ```
 
 ### **Method 2: One-liner Command**
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:4000/chat" -Method POST -ContentType "application/json" -Body (@{userId="test"; message="hello"} | ConvertTo-Json) -TimeoutSec 30
 ```
 
 ### **Method 3: Using PowerShell Hashtable**
+
 ```powershell
 $params = @{
     Uri = "http://localhost:4000/chat"
@@ -44,11 +48,13 @@ Invoke-RestMethod @params
 ## **2. CURL ALTERNATIVE**
 
 ### **Windows curl command:**
+
 ```powershell
 curl -X POST http://localhost:4000/chat -H "Content-Type: application/json" -d "{\"userId\":\"test\",\"message\":\"hello\"}"
 ```
 
 ### **Powerhell curl equivalent:**
+
 ```powershell
 Invoke-WebRequest -Uri "http://localhost:4000/chat" -Method POST -Headers @{"Content-Type"="application/json"} -Body (@{userId="test"; message="hello"} | ConvertTo-Json)
 ```
@@ -56,6 +62,7 @@ Invoke-WebRequest -Uri "http://localhost:4000/chat" -Method POST -Headers @{"Con
 ## **3. EXPECTED RESPONSE**
 
 ### **Success Response:**
+
 ```json
 {
     "response": "Great question! Here's what I think...",
@@ -64,6 +71,7 @@ Invoke-WebRequest -Uri "http://localhost:4000/chat" -Method POST -Headers @{"Con
 ```
 
 ### **Error Response:**
+
 ```json
 {
     "error": "Missing required fields: userId and message",
@@ -74,18 +82,21 @@ Invoke-WebRequest -Uri "http://localhost:4000/chat" -Method POST -Headers @{"Con
 ## **4. DEBUGGING STEPS**
 
 ### **Step 1: Verify Backend Health**
+
 ```powershell
 # Check if server is running
 Invoke-RestMethod -Uri "http://localhost:4000/health" -Method GET
 ```
 
 ### **Step 2: Check Port Availability**
+
 ```powershell
 # Check if port 4000 is listening
 netstat -an | findstr :4000
 ```
 
 ### **Step 3: Test with Different Methods**
+
 ```powershell
 # Test GET request first
 Invoke-RestMethod -Uri "http://localhost:4000/health" -Method GET
@@ -95,6 +106,7 @@ Invoke-RestMethod -Uri "http://localhost:4000/chat" -Method POST -ContentType "a
 ```
 
 ### **Step 4: Check Server Logs**
+
 ```powershell
 # View backend server output
 # Look for errors in the terminal where server is running
@@ -103,22 +115,28 @@ Invoke-RestMethod -Uri "http://localhost:4000/chat" -Method POST -ContentType "a
 ## **5. COMMON ISSUES & SOLUTIONS**
 
 ### **Issue: "Canceled terminal command"**
+
 **Cause**: Command hanging due to timeout or server not responding
 **Solution**: Add timeout parameter
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:4000/chat" -Method POST -ContentType "application/json" -Body $body -TimeoutSec 30
 ```
 
 ### **Issue: JSON parsing errors**
+
 **Cause**: Incorrect JSON formatting in PowerShell
 **Solution**: Use ConvertTo-Json properly
+
 ```powershell
 $body = @{userId="test"; message="hello"} | ConvertTo-Json
 ```
 
 ### **Issue: Connection refused**
+
 **Cause**: Backend server not running
 **Solution**: Start the server first
+
 ```powershell
 cd C:\Users\SUN\CascadeProjects\ai-voice-chat-backend
 node server.js
@@ -127,6 +145,7 @@ node server.js
 ## **6. IMPROVED REQUEST METHODS**
 
 ### **With Error Handling:**
+
 ```powershell
 try {
     $body = @{
@@ -143,6 +162,7 @@ try {
 ```
 
 ### **With Detailed Logging:**
+
 ```powershell
 $requestParams = @{
     Uri = "http://localhost:4000/chat"
